@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SMCC Story Radar and Reach Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f6f8;--surface:#fff;--text:#17212b;--muted:#566471;--border:#d5dde3;--accent:#0f6e6e;--accent-soft:#dcefee;--ok:#2e7d4f;--no:#b03a48;--warn-bg:#fff4d6;--warn-text:#5c4300;color-scheme:light;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f161c;--surface:#17212a;--text:#e6ecf0;--muted:#93a1ac;--border:#2a3641;--accent:#4db6ac;--accent-soft:#17353a;--ok:#6fcf97;--no:#ef8a96;--warn-bg:#3a2f10;--warn-text:#f3dc9a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f161c;--surface:#17212a;--text:#e6ecf0;--muted:#93a1ac;--border:#2a3641;--accent:#4db6ac;--accent-soft:#17353a;--ok:#6fcf97;--no:#ef8a96;--warn-bg:#3a2f10;--warn-text:#f3dc9a;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque","Atkinson Hyperlegible",system-ui,sans-serif;line-height:1.2;margin:0}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 48px}
+header{padding:8px 0 16px}
+header h1{font-size:1.7rem}
+header p{margin:6px 0 0;color:var(--muted);max-width:60ch}
+nav{display:flex;gap:4px;border-bottom:1px solid var(--border);margin:8px 0 20px;overflow-x:auto}
+nav a{padding:10px 14px;color:var(--muted);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
+nav a[aria-current="page"]{color:var(--text);border-color:var(--accent);font-weight:700}
+nav a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+section[hidden]{display:none}
+h2{font-size:1.25rem;margin:26px 0 8px}
+p{margin:0 0 12px;max-width:68ch}
+ul{padding-left:20px;max-width:68ch}li{margin-bottom:6px}
+.steps{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));padding:0;list-style:none;max-width:none}
+.steps li{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;margin:0}
+.steps b{display:block;margin-bottom:4px}
+.note{background:var(--warn-bg);color:var(--warn-text);border-radius:8px;padding:10px 12px;margin:12px 0;max-width:68ch}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:16px}
+.weights{display:grid;gap:8px 20px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.weights label{display:flex;flex-direction:column;font-size:.9rem;gap:2px}
+.weights span{display:flex;justify-content:space-between}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px}
+.card.done{opacity:.8}
+.top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.top h3{font-size:1.05rem}
+.meta{color:var(--muted);font-size:.875rem;margin:2px 0 0}
+.sc{text-align:right;flex:none}.sc b{font-family:"Bricolage Grotesque",sans-serif;font-size:2rem;line-height:1;color:var(--accent);display:block}
+.sc span{font-size:.8rem;color:var(--muted)}
+.bar{height:6px;background:var(--accent-soft);border-radius:3px;margin:10px 0}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:3px;transition:width .25s}
+details{margin:8px 0}summary{cursor:pointer;color:var(--accent);font-weight:700}
+textarea{width:100%;margin-top:8px;font:inherit;font-size:.9rem;padding:8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);resize:vertical}
+.act{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button{font:inherit;padding:8px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;min-height:40px}
+button.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+button.no{color:var(--no);border-color:var(--no)}
+.badge{font-size:.85rem;font-weight:700}.badge.approved{color:var(--ok)}.badge.rejected{color:var(--no)}
+.stats{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:16px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px}
+.stat b{font-family:"Bricolage Grotesque",sans-serif;font-size:1.7rem;display:block}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:560px;background:var(--surface)}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--border);vertical-align:middle}
+th{font-size:.875rem;color:var(--muted);font-weight:700}
+td input{width:90px;padding:6px;font:inherit;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text)}
+td input[type=date]{width:150px}
+.empty{color:var(--muted);padding:16px 0}
+.ai{margin-top:10px}.ai label{display:flex;flex-direction:column;font-size:.85rem;color:var(--muted)}.aistat{font-size:.85rem;color:var(--muted)}
+.ai label.inl{flex-direction:row;align-items:center;gap:6px;color:var(--text)}.ai select{padding:6px;font:inherit;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text)}
+.rts{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin-top:8px}.rts label{display:flex;flex-direction:column;font-size:.85rem}.rts input{padding:6px;font:inherit;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text)}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>SMCC Story Radar and Reach Tracker</h1>
+<p>A decision-support prototype for the Science Media Communication Cell. It suggests which lab outputs deserve a story, and it tracks what happens after a story goes out.</p>
+</header>
+<nav aria-label="Sections">
+<a href="#overview" data-v="overview">Overview</a>
+<a href="#radar" data-v="radar">Story Radar</a>
+<a href="#tracker" data-v="tracker">Reach Tracker</a>
+</nav>
+
+<section id="v-overview">
+<h2>The problem</h2>
+<p>SMCC carries research from Indian labs to the public through TV, radio, print, digital and social media. Two parts of that work look manual: finding which outputs are worth a story, and learning what a story achieved once it is out. The CSIR News portal feed shows why: most entries I read were events, awards and MoUs, with research outputs mixed in among them.</p>
+<h2>How the tool works</h2>
+<ol class="steps">
+<li><b>Collect</b>Gather recent public outputs from chosen labs: papers, patents, announcements.</li>
+<li><b>Score</b>Rate each for public benefit, novelty, visual potential, timeliness and regional relevance. Editors set the weights.</li>
+<li><b>Review</b>An editor reads a cited draft brief, edits it, then approves or rejects it.</li>
+<li><b>Track</b>Approved stories go into a log where coverage and enquiries are recorded.</li>
+</ol>
+<h2>What this prototype does</h2>
+<ul>
+<li>Ranks six real items from the CSIR News portal live as you change the weights on the Story Radar tab.</li>
+<li>Drafts an editable template brief and suggests a format for each output.</li>
+<li>Drafts a fuller brief with Claude on request, using only the blurb and any source text you paste. Every AI draft is marked for checking and lists the claims to verify.</li>
+<li>Translates a brief into Hindi, Bengali, Marathi, Tamil or Telugu on request. The translation is marked as machine output for a fluent editor to check.</li>
+<li>Moves approved stories to the Reach Tracker, where you enter mentions and enquiries and see totals.</li>
+<li>Keeps your choices in this browser only.</li>
+</ul>
+<h2>What it does not do yet</h2>
+<ul>
+<li>It does not collect items by itself. The six items are a one-time snapshot of the portal feed, and the ratings are provisional guesses that editors can change.</li>
+<li>It does not find coverage on its own. Mentions are entered manually here.</li>
+<li>It publishes nothing. Every brief needs an editor’s approval and a source link.</li>
+</ul>
+<h2>How we would judge a full version</h2>
+<ul>
+<li>How many of SMCC’s past stories the Radar would have flagged.</li>
+<li>How many drafted briefs editors keep, and how much time each saves.</li>
+<li>How many placed stories have any downstream mention found.</li>
+</ul>
+<div class="note">I found no public sign of a tool like this at SMCC, but internal tools are invisible from outside. Confirm with SMCC before calling it new.</div>
+</section>
+
+<section id="v-radar" hidden>
+<div class="panel">
+<h2 style="margin-top:0">What counts as newsworthy</h2>
+<p style="color:var(--muted)">Move a slider to change how much a factor matters. The ranking updates at once.</p>
+<div class="weights" id="weights"></div>
+</div>
+<div class="note">A snapshot of real items from the CSIR News portal, read on 20 November 2026. The five ratings are my provisional guesses from each blurb. Open “Edit ratings” on a card to change them.</div>
+<div id="list"></div>
+<p><button id="reset" type="button">Reset demo</button></p>
+</section>
+
+<section id="v-tracker" hidden>
+<div class="stats" id="stats"></div>
+<div class="scroll" id="tbl"></div>
+<p style="color:var(--muted);margin-top:12px">TV and social coverage is hard to capture. Record what you can find, and treat zero as “none found”, not “none happened”.</p>
+</section>
+</div>
+
+<script>
+var FACTORS=["Public benefit","Novelty","Visual potential","Timeliness","Regional relevance"];
+var ITEMS=[
+{id:"a",lab:"CSIR-NPL",kind:"Technology transfer",title:"India’s first high-volume particulate sampler is transferred for production",sum:"The feed describes a particulate-matter sampler for air quality monitoring as the first of its kind developed in India, and says the technology has been transferred.",s:[4,5,3,4,2]},
+{id:"b",lab:"CSIR",kind:"Technology transfer",title:"Indigenous HANSA-3(NG) trainer aircraft technology is transferred for pilot training",sum:"The feed says the CSIR-designed trainer aircraft is meant for commercial pilot licence training and supports India’s aviation ecosystem.",s:[3,5,5,3,2]},
+{id:"c",lab:"CSIR",kind:"Announcement",title:"CSIR announces indigenously developed paracetamol",sum:"The minister said the work aims to reduce dependence on imported ingredients for paracetamol manufacturing.",s:[4,4,2,3,3]},
+{id:"d",lab:"CSIR",kind:"Product launch",title:"New compact and affordable tractor aimed at small and marginal farmers",sum:"The feed describes a compact utility tractor meant to meet the needs of small and marginal farmers.",s:[4,3,5,2,5]},
+{id:"e",lab:"CSIR",kind:"Announcement, 2021",title:"Groundwater mapping technique proposed to support drinking-water supply",sum:"The feed says the technique is cost-effective and precise, and can map large areas in arid regions within a short time.",s:[4,4,3,1,4]},
+{id:"f",lab:"CSIR",kind:"Event news",title:"CSIR takes part in the Rise in India 2025 exhibition",sum:"The feed reports participation in an exhibition, with no specific research output named.",s:[1,1,3,3,1]}
+];
+var S={w:[4,3,2,2,1],d:{}},KEY="smcc-proto-v1",OPEN={};
+try{var raw=localStorage.getItem(KEY);if(raw){var p=JSON.parse(raw);if(p&&Array.isArray(p.w)&&p.w.length===5&&p.d&&typeof p.d==="object")S=p}}catch(e){}
+S.r=S.r||{};S.src=S.src||{};S.tr=S.tr||{};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function $(s){return document.querySelector(s)}
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function rt(it){return S.r[it.id]||it.s}
+function ratingsHtml(it){var r=rt(it);return '<details data-id="r'+it.id+'"'+(OPEN["r"+it.id]?" open":"")+'><summary>Edit ratings</summary><div class="rts">'+FACTORS.map(function(f,i){return '<label>'+f+'<input type="number" min="1" max="5" value="'+r[i]+'" data-r="'+i+'" data-id="'+it.id+'" aria-label="'+f+' rating"></label>'}).join("")+'</div></details>'}
+function score(it){var t=S.w.reduce(function(a,b){return a+b},0);if(!t)return 0;return Math.round(rt(it).reduce(function(a,v,i){return a+v*S.w[i]},0)/(5*t)*100)}
+function fmt(it){var s=rt(it);return s[2]>=4?"TV or short video":s[4]>=4?"Radio or regional print":s[0]>=4?"Print success story":"Social post"}
+function draft(it){return it.title+"\n\nWhat happened: "+it.sum+"\nWhy it matters: public benefit rated "+rt(it)[0]+" of 5.\nSuggested format: "+fmt(it)+"\nSource: "+(it.link||"CSIR News portal feed, https://csirnews.niscpr.res.in/home/lab/1 (add the article link before approving)")+"\n\nDraft only. An editor must check every claim against the source."}
+function today(){return new Date().toISOString().slice(0,10)}
+
+function renderWeights(){
+$("#weights").innerHTML=FACTORS.map(function(f,i){return '<label><span>'+f+'<b id="wv'+i+'">'+S.w[i]+'</b></span><input type="range" min="0" max="5" value="'+S.w[i]+'" data-i="'+i+'" aria-label="'+f+' weight"></label>'}).join("");
+}
+function renderList(){
+var items=ITEMS.slice().sort(function(a,b){return score(b)-score(a)});
+$("#list").innerHTML=items.map(function(it){
+var d0=S.d[it.id],d=d0&&d0.st?d0:null,sc=score(it),brief=d0&&d0.brief!=null?d0.brief:draft(it);
+var st=d?'<span class="badge '+d.st+'">'+(d.st==="approved"?"Approved":"Rejected")+'</span>':"";
+var acts=d?'<button type="button" data-act="undo" data-id="'+it.id+'">Undo</button>':'<button type="button" class="ok" data-act="ok" data-id="'+it.id+'">Approve</button><button type="button" class="no" data-act="no" data-id="'+it.id+'">Reject</button>';
+return '<article class="card'+(d?" done":"")+'"><div class="top"><div><h3>'+esc(it.title)+'</h3><p class="meta">'+it.lab+', '+it.kind+'</p></div><div class="sc"><b>'+sc+'</b><span>of 100</span></div></div><div class="bar"><i style="width:'+sc+'%"></i></div><p>'+esc(it.sum)+'</p><details data-id="'+it.id+'"'+(OPEN[it.id]?" open":"")+'><summary>Draft brief, suggested format: '+fmt(it)+'</summary><textarea rows="8" data-id="'+it.id+'" aria-label="Brief for '+esc(it.title)+'">'+esc(brief)+'</textarea>'+aiHtml(it)+'</details>'+ratingsHtml(it)+'<div class="act">'+acts+st+'</div></article>';
+}).join("");
+}
+function renderTracker(){
+var rows=ITEMS.filter(function(it){return S.d[it.id]&&S.d[it.id].st==="approved"});
+if(!rows.length){$("#tbl").innerHTML='<p class="empty">No approved stories yet. Approve a brief on the Story Radar tab and it will appear here.</p>'}
+else{$("#tbl").innerHTML='<table><thead><tr><th>Story</th><th>Date placed</th><th>Mentions found</th><th>Enquiries</th></tr></thead><tbody>'+rows.map(function(it){var d=S.d[it.id];return '<tr><td>'+esc(it.title)+'</td><td><input type="date" value="'+esc(d.date||"")+'" data-f="date" data-id="'+it.id+'" aria-label="Date placed"></td><td><input type="number" min="0" value="'+(d.mentions||0)+'" data-f="mentions" data-id="'+it.id+'" aria-label="Mentions found"></td><td><input type="number" min="0" value="'+(d.enq||0)+'" data-f="enq" data-id="'+it.id+'" aria-label="Enquiries"></td></tr>'}).join("")+'</tbody></table>'}
+renderStats();
+}
+function renderStats(){
+var rows=ITEMS.filter(function(it){return S.d[it.id]&&S.d[it.id].st==="approved"}).map(function(it){return S.d[it.id]});
+var withM=rows.filter(function(d){return d.mentions>0}).length,enq=rows.reduce(function(a,d){return a+(d.enq||0)},0);
+$("#stats").innerHTML='<div class="stat"><b>'+rows.length+'</b>stories approved</div><div class="stat"><b>'+withM+' of '+rows.length+'</b>with a mention found</div><div class="stat"><b>'+enq+'</b>enquiries recorded</div>';
+}
+function show(){
+var v=(location.hash||"#overview").slice(1);if(["overview","radar","tracker"].indexOf(v)<0)v="overview";
+["overview","radar","tracker"].forEach(function(n){$("#v-"+n).hidden=n!==v});
+document.querySelectorAll("nav a").forEach(function(a){if(a.dataset.v===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+if(v==="tracker")renderTracker();
+}
+document.addEventListener("input",function(e){var t=e.target;
+if(t.dataset.i!==undefined){S.w[+t.dataset.i]=+t.value;$("#wv"+t.dataset.i).textContent=t.value;save();renderList()}
+else if(t.dataset.src!==undefined){S.src[t.dataset.src]=t.value;save()}
+else if(t.dataset.tr!==undefined){S.tr[t.dataset.tr].text=t.value;save()}
+else if(t.tagName==="TEXTAREA"){var id=t.dataset.id;S.d[id]=S.d[id]||{};S.d[id].brief=t.value;if(!S.d[id].st){/* draft edit only */}save()}
+else if(t.dataset.f){var d=S.d[t.dataset.id];d[t.dataset.f]=t.dataset.f==="date"?t.value:Math.max(0,parseInt(t.value,10)||0);save();renderStats()}
+});
+document.addEventListener("click",function(e){var b=e.target.closest("button[data-act]");if(!b)return;if(b.dataset.act==="ai"){aiDraft(b.dataset.id);return}if(b.dataset.act==="tr"){trRun(b.dataset.id);return}var id=b.dataset.id,a=b.dataset.act,keep=S.d[id]&&S.d[id].brief;
+if(a==="undo"){S.d[id]=keep!=null?{brief:keep,ai:!!(S.d[id]&&S.d[id].ai)}:undefined;if(!S.d[id])delete S.d[id]}
+else{S.d[id]={ai:!!(S.d[id]&&S.d[id].ai),st:a==="ok"?"approved":"rejected",brief:keep!=null?keep:draft(ITEMS.filter(function(i){return i.id===id})[0]),date:today(),mentions:0,enq:0}}
+save();renderList()});
+document.addEventListener("toggle",function(e){if(e.target.tagName==="DETAILS")OPEN[e.target.dataset.id]=e.target.open},true);
+$("#reset").addEventListener("click",function(){S={w:[4,3,2,2,1],d:{},r:{},src:{},tr:{}};OPEN={};AIERR={};TRERR={};save();renderWeights();renderList()});
+document.addEventListener("change",function(e){var t=e.target;if(t.dataset.lang!==undefined){var q=S.tr[t.dataset.lang]=S.tr[t.dataset.lang]||{};q.pick=t.value;save();return}if(t.dataset.r===undefined)return;var it=ITEMS.filter(function(i){return i.id===t.dataset.id})[0],r=rt(it).slice();r[+t.dataset.r]=Math.min(5,Math.max(1,parseInt(t.value,10)||1));S.r[it.id]=r;save();renderList()});
+var SAMPLE=null,AIBUSY={},AIERR={};
+function aiHtml(it){var id=it.id,d=S.d[id],busy=AIBUSY[id],msg=AIERR[id]||(d&&d.ai?"AI draft. Check every claim against the source before approving.":"");return '<div class="ai"><label>Source text (optional). Paste the article or release so the draft rests on more than the blurb.<textarea rows="3" data-src="'+id+'">'+esc(S.src[id]||"")+'</textarea></label><div class="act"><button type="button" data-act="ai" data-id="'+id+'"'+(busy?" disabled":"")+'>'+(busy?"Drafting…":"Draft with Claude")+'</button><span class="aistat" role="status">'+esc(busy?"Drafting…":msg)+'</span></div>'+trHtml(it)+'</div>'}
+function setBrief(id,text){S.d[id]=S.d[id]||{};S.d[id].brief=text;var ta=document.querySelector('textarea[data-id="'+id+'"]');if(ta)ta.value=text}
+async function aiDraft(id){
+if(AIBUSY[id])return;
+var it=ITEMS.filter(function(i){return i.id===id})[0];
+try{if(!SAMPLE)SAMPLE=await claude.use("sample")}catch(e){SAMPLE=null}
+if(!SAMPLE){AIERR[id]="Claude drafting is not available in this view. The template brief still works.";renderList();return}
+var src=(S.src[id]||"").trim().slice(0,6000);
+var prompt="You draft internal story briefs for the Science Media Communication Cell of a government science institute. An editor will check your draft.\n\nRules:\n- Use only the facts in SOURCE. Add no names, numbers, dates or claims that are not there.\n- If something an editor needs is missing, write [CHECK: what is missing] in its place.\n- Use plain language for a general audience. No hype.\n\nSOURCE\nTitle: "+it.title+"\nLab: "+it.lab+"\nType: "+it.kind+"\nBlurb: "+it.sum+"\nLink: "+(it.link||"not available")+(src?"\nFull text:\n"+src:"")+"\n\nWrite the brief in exactly this plain-text layout:\nHeadline: (under 12 words)\nWhat happened: (2 or 3 sentences)\nWhy it matters: (1 or 2 sentences, only if the source supports it)\nSuggested format and angle: (one of TV or short video, radio, print, social, then one sentence on the angle; the tool suggests: "+fmt(it)+")\nClaims to verify: (a short list of the specific claims an editor should check against the source)\nSource: (the link, or [CHECK: add article link])";
+AIBUSY[id]=true;delete AIERR[id];OPEN[id]=true;renderList();
+try{var r=await SAMPLE(prompt,{modelTier:"default",cache:false,onText:function(o){setBrief(id,o.text)}});setBrief(id,r.text);S.d[id].ai=true;save()}
+catch(err){var c=err&&err.code;AIERR[id]=c==="not_granted"?"Access was declined. The template brief still works.":c==="rate_limited"?"Too many requests. Wait a moment and try again.":"Drafting failed. Try again, or edit the template brief by hand."}
+AIBUSY[id]=false;renderList()}
+var LANGS=["Hindi","Bengali","Marathi","Tamil","Telugu"],TRBUSY={},TRERR={};
+function trHtml(it){var id=it.id,t=S.tr[id]||{},busy=TRBUSY[id],cur=t.pick||t.lang||"Hindi";return '<div class="act"><label class="inl">Translate into <select data-lang="'+id+'">'+LANGS.map(function(l){return '<option'+(l===cur?" selected":"")+'>'+l+'</option>'}).join("")+'</select></label><button type="button" data-act="tr" data-id="'+id+'"'+(busy?" disabled":"")+'>'+(busy?"Translating…":"Translate brief")+'</button></div>'+(t.text?'<textarea rows="8" data-tr="'+id+'" aria-label="'+esc(t.lang||"")+' brief">'+esc(t.text)+'</textarea><span class="aistat">Machine translation. A fluent editor must check it before any use.</span>':"")+(TRERR[id]?'<span class="aistat">'+esc(TRERR[id])+'</span>':"")}
+async function trRun(id){
+if(TRBUSY[id])return;
+var it=ITEMS.filter(function(i){return i.id===id})[0],d=S.d[id],brief=d&&d.brief!=null?d.brief:draft(it),lang=(S.tr[id]&&S.tr[id].pick)||"Hindi";
+try{if(!SAMPLE)SAMPLE=await claude.use("sample")}catch(e){SAMPLE=null}
+if(!SAMPLE){TRERR[id]="Translation is not available in this view.";renderList();return}
+var prompt="Translate this story brief into "+lang+" for a general audience.\n\nRules:\n- Keep the meaning exactly. Add no facts and remove none.\n- Translate the section labels too.\n- Leave any [CHECK: ...] marker, link and number exactly as written.\n- Output only the translation.\n\nBRIEF\n"+brief;
+TRBUSY[id]=true;delete TRERR[id];OPEN[id]=true;renderList();
+try{var r=await SAMPLE(prompt,{modelTier:"default",cache:false});S.tr[id]=Object.assign(S.tr[id]||{},{lang:lang,text:r.text});save()}
+catch(err){var c=err&&err.code;TRERR[id]=c==="not_granted"?"Access was declined.":c==="rate_limited"?"Too many requests. Wait a moment and try again.":"Translation failed. Try again."}
+TRBUSY[id]=false;renderList()}
+window.addEventListener("hashchange",show);
+renderWeights();renderList();show();
+</script>
+</body>
+</html>
